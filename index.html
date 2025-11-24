@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Circumference and Area of Circle Portions – Mr. McLean Math</title>
+  <title>Circumference and Area of Circles – Mr. McLean Math</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
@@ -160,13 +160,6 @@
       margin-top: 0.25rem;
     }
 
-    .portion-text {
-      font-size: 0.95rem;
-      text-align: center;
-      margin-top: 0.15rem;
-      font-weight: 600;
-    }
-
     .inputs-row {
       display: flex;
       flex-direction: column;
@@ -181,7 +174,7 @@
       gap: 0.3rem;
     }
 
-    input[type="text"] {
+    input[type="number"], input[type="text"] {
       width: 7rem;
       padding: 0.3rem 0.4rem;
       font-size: 1.1rem;
@@ -190,6 +183,7 @@
       border: 1px solid var(--border-subtle);
     }
 
+    input[type="number"]:focus,
     input[type="text"]:focus {
       outline: 2px solid var(--accent);
       outline-offset: 1px;
@@ -370,9 +364,9 @@
 <body>
 <div class="app">
   <header>
-    <h1>Circumference and Area of Circle Portions</h1>
+    <h1>Circumference and Area of Circles</h1>
     <p class="subtitle">
-      Practice finding the circumference and area of 1/4, 1/2, and 3/4 of a circle using radius or diameter.
+      Practice calculating the circumference and area of full circles using radius or diameter.
     </p>
     <p class="note">
       Use π = 3.14 and round your answers to the nearest whole number. Diagrams are not drawn to scale.
@@ -391,8 +385,8 @@
         <label>
           Question type:
           <select id="mode-select">
-            <option value="circumference" selected>Circumference of portion</option>
-            <option value="area">Area of portion</option>
+            <option value="circumference" selected>Circumference</option>
+            <option value="area">Area</option>
             <option value="mixed">Mixed</option>
           </select>
         </label>
@@ -429,7 +423,6 @@
 
           <div class="question-text" id="question-text"></div>
           <div class="given-text" id="given-text"></div>
-          <div class="portion-text" id="portion-text"></div>
 
           <div class="inputs-row">
             <label for="answer-input">
@@ -456,7 +449,7 @@
           <div id="feedback" class="feedback-panel" aria-live="polite">
             <div class="feedback-title">Answer the question to see feedback.</div>
             <div id="feedback-body">
-              Choose a question type, then calculate the circumference or area of the shaded part and round to the nearest whole number.
+              Choose a question type, then calculate the circumference or area and round to the nearest whole number.
             </div>
             <button id="show-steps-btn" class="ghost" style="margin-top:0.4rem; display:none;">
               Show steps
@@ -493,8 +486,8 @@
         <label>
           Question type:
           <select id="ws-mode-select">
-            <option value="circumference" selected>Circumference of portion</option>
-            <option value="area">Area of portion</option>
+            <option value="circumference" selected>Circumference</option>
+            <option value="area">Area</option>
             <option value="mixed">Mixed</option>
           </select>
         </label>
@@ -525,6 +518,7 @@
   const svgNS = 'http://www.w3.org/2000/svg';
   const PI = 3.14;
 
+  // Circle templates: only center + pixel radius now (no angle)
   const circTemplates = [
     { cx: 130, cy: 130, rPx: 70 },
     { cx: 130, cy: 125, rPx: 65 },
@@ -547,12 +541,6 @@
     { cx: 128, cy: 132, rPx: 79 }
   ];
 
-  const portionCycle = [
-    { fraction: 1/4, label: '1/4 of the circle' },
-    { fraction: 1/2, label: '1/2 of the circle' },
-    { fraction: 3/4, label: '3/4 of the circle' }
-  ];
-
   const state = {
     mode: 'circumference',
     currentQuestion: null,
@@ -566,8 +554,7 @@
     streak: 0,
     bestStreak: 0,
     history: [],
-    lastResultCorrect: null,
-    portionIndex: 0
+    lastResultCorrect: null
   };
 
   const els = {
@@ -583,7 +570,6 @@
     gameSvg: document.getElementById('game-svg'),
     questionText: document.getElementById('question-text'),
     givenText: document.getElementById('given-text'),
-    portionText: document.getElementById('portion-text'),
     answerInput: document.getElementById('answer-input'),
     submitBtn: document.getElementById('submit-btn'),
     nextBtn: document.getElementById('next-btn'),
@@ -623,6 +609,7 @@
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
+  // Audio
   let audioCtx = null;
   function playBeep(type) {
     if (!els.soundToggle.checked) return;
@@ -642,70 +629,54 @@
     } catch(e) {}
   }
 
-  function degToRad(deg) {
-    return deg * Math.PI / 180;
-  }
-
-  function getNextPortion() {
-    const p = portionCycle[state.portionIndex];
-    state.portionIndex = (state.portionIndex + 1) % portionCycle.length;
-    return p;
-  }
-
+  // Question generator
   function generateQuestion(mode) {
     const kind =
       mode === 'circumference' ? 'circ' :
       mode === 'area' ? 'area' :
       (Math.random() < 0.5 ? 'circ' : 'area');
 
-    const portion = getNextPortion();
-    const fraction = portion.fraction;
-
-    let givenType;
+    const givenType = Math.random() < 0.5 ? 'r' : 'd';
     let rVal, dVal;
 
-    if (Math.abs(fraction - 0.5) < 1e-6) {
-      // Half-circle: use diameter
-      givenType = 'd';
-      dVal = 2 * randomInt(2, 20);
-      rVal = dVal / 2;
-    } else {
-      // Quarter and three-quarter: use radius
-      givenType = 'r';
+    if (givenType === 'r') {
       rVal = randomInt(2, 20);
       dVal = 2 * rVal;
+    } else {
+      dVal = 2 * randomInt(2, 20);
+      rVal = dVal / 2;
     }
 
     let rawValue;
     if (kind === 'circ') {
-      const fullC = givenType === 'r'
-        ? 2 * PI * rVal
-        : PI * dVal;
-      rawValue = fraction * fullC;
+      if (givenType === 'r') {
+        rawValue = 2 * PI * rVal;
+      } else {
+        rawValue = PI * dVal;
+      }
     } else {
-      const fullA = PI * rVal * rVal;
-      rawValue = fraction * fullA;
+      rawValue = PI * rVal * rVal;
     }
 
     const rounded = Math.round(rawValue);
+
     const template =
       kind === 'circ'
         ? randomChoice(circTemplates)
         : randomChoice(areaTemplates);
 
     return {
-      kind,
-      givenType,
+      kind,             // 'circ' or 'area'
+      givenType,        // 'r' or 'd'
       givenValue: givenType === 'r' ? rVal : dVal,
       radius: rVal,
       rawValue,
       correctRounded: rounded,
-      template,
-      fraction,
-      portionLabel: portion.label
+      template
     };
   }
 
+  // Timer
   function clearTimer() {
     if (state.timerId) {
       clearInterval(state.timerId);
@@ -754,15 +725,12 @@
     state.lastResultCorrect = false;
   }
 
+  // SVG drawing
   function clearSvg(svg) {
     while (svg.firstChild) svg.removeChild(svg.firstChild);
   }
 
-  // Draws pieces exactly like your diagram:
-  //  - 3/4 Pac-Man (missing top-right quarter)
-  //  - 1/2 bottom semicircle
-  //  - 1/4 bottom-right quarter
-  function drawSectorQuestion(svg, q) {
+  function drawCircleQuestion(svg, q) {
     clearSvg(svg);
     const t = q.template;
     const cx = t.cx;
@@ -770,90 +738,37 @@
     const rPx = t.rPx;
 
     const strokeColor = '#444';
-    const fillColor = (q.kind === 'circ') ? '#ffffff' : '#b5d3ff';
-    const eps = 1e-6;
-    const frac = q.fraction;
+    const fillColor = q.kind === 'area' ? '#d8f5d8' : '#ffffff';
 
-    if (Math.abs(frac - 0.75) < eps) {
-      // 3/4 of circle: Pac-Man, missing top-right quarter
-      const xRight = cx + rPx;
-      const yRight = cy;
-      const xTop = cx;
-      const yTop = cy - rPx;
-
-      const path = document.createElementNS(svgNS, 'path');
-      const d = [
-        'M', cx, cy,
-        'L', xRight, yRight,
-        'A', rPx, rPx, 0, 1, 1, xTop, yTop,
-        'L', cx, cy,
-        'Z'
-      ].join(' ');
-      path.setAttribute('d', d);
-      path.setAttribute('fill', fillColor);
-      path.setAttribute('stroke', strokeColor);
-      path.setAttribute('stroke-width', '3');
-      svg.appendChild(path);
-    } else if (Math.abs(frac - 0.5) < eps) {
-      // 1/2 circle: bottom semicircle with flat top
-      const xLeft = cx - rPx;
-      const xRight = cx + rPx;
-      const yFlat = cy;
-
-      const path = document.createElementNS(svgNS, 'path');
-      const d = [
-        'M', xLeft, yFlat,
-        'L', xRight, yFlat,
-        'A', rPx, rPx, 0, 0, 1, xLeft, yFlat,
-        'Z'
-      ].join(' ');
-      path.setAttribute('d', d);
-      path.setAttribute('fill', fillColor);
-      path.setAttribute('stroke', strokeColor);
-      path.setAttribute('stroke-width', '3');
-      svg.appendChild(path);
-    } else {
-      // 1/4 circle: bottom-right quarter
-      const xRight = cx + rPx;
-      const yCenter = cy;
-      const xBottom = cx;
-      const yBottom = cy + rPx;
-
-      const path = document.createElementNS(svgNS, 'path');
-      const d = [
-        'M', cx, cy,
-        'L', xRight, yCenter,
-        'A', rPx, rPx, 0, 0, 1, xBottom, yBottom,
-        'L', cx, cy,
-        'Z'
-      ].join(' ');
-      path.setAttribute('d', d);
-      path.setAttribute('fill', fillColor);
-      path.setAttribute('stroke', strokeColor);
-      path.setAttribute('stroke-width', '3');
-      svg.appendChild(path);
-    }
+    const circle = document.createElementNS(svgNS, 'circle');
+    circle.setAttribute('cx', cx);
+    circle.setAttribute('cy', cy);
+    circle.setAttribute('r', rPx);
+    circle.setAttribute('fill', fillColor);
+    circle.setAttribute('stroke', strokeColor);
+    circle.setAttribute('stroke-width', '3');
+    svg.appendChild(circle);
 
     const labelOffsetY = 14;
 
     if (q.givenType === 'r') {
-      // horizontal radius from center to right
-      const x1r = cx;
-      const y1r = cy;
-      const x2r = cx + rPx;
-      const y2r = cy;
+      // radius: horizontal to the right
+      const x1 = cx;
+      const y1 = cy;
+      const x2 = cx + rPx;
+      const y2 = cy;
 
       const line = document.createElementNS(svgNS, 'line');
-      line.setAttribute('x1', x1r);
-      line.setAttribute('y1', y1r);
-      line.setAttribute('x2', x2r);
-      line.setAttribute('y2', y2r);
+      line.setAttribute('x1', x1);
+      line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2);
+      line.setAttribute('y2', y2);
       line.setAttribute('stroke', strokeColor);
       line.setAttribute('stroke-width', '3');
       svg.appendChild(line);
 
-      const midx = (x1r + x2r) / 2;
-      const midy = y1r;
+      const midx = (x1 + x2) / 2;
+      const midy = y1;
 
       const label = document.createElementNS(svgNS, 'text');
       label.setAttribute('x', midx);
@@ -864,24 +779,27 @@
       label.textContent = 'r = ' + q.givenValue + ' cm';
       svg.appendChild(label);
     } else {
-      // diameter along flat top for the semicircle
-      const x1d = cx - rPx;
-      const x2d = cx + rPx;
-      const y = cy;
+      // diameter: horizontal across the circle
+      const x1 = cx - rPx;
+      const y1 = cy;
+      const x2 = cx + rPx;
+      const y2 = cy;
 
       const line = document.createElementNS(svgNS, 'line');
-      line.setAttribute('x1', x1d);
-      line.setAttribute('y1', y);
-      line.setAttribute('x2', x2d);
-      line.setAttribute('y2', y);
+      line.setAttribute('x1', x1);
+      line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2);
+      line.setAttribute('y2', y2);
       line.setAttribute('stroke', strokeColor);
       line.setAttribute('stroke-width', '3');
       svg.appendChild(line);
 
-      const midx = (x1d + x2d) / 2;
+      const midx = (x1 + x2) / 2;
+      const midy = y1;
+
       const label = document.createElementNS(svgNS, 'text');
       label.setAttribute('x', midx);
-      label.setAttribute('y', y - labelOffsetY);
+      label.setAttribute('y', midy - labelOffsetY);
       label.setAttribute('font-size', '14');
       label.setAttribute('text-anchor', 'middle');
       label.setAttribute('fill', strokeColor);
@@ -890,6 +808,7 @@
     }
   }
 
+  // Feedback & stats
   function setFeedback(status, title, body) {
     els.feedback.classList.remove('correct', 'incorrect');
     if (status === 'correct') els.feedback.classList.add('correct');
@@ -912,14 +831,13 @@
     history.forEach((h, idx) => {
       if (h.correct) return;
       const li = document.createElement('li');
-      const typeText = h.kind === 'circ' ? 'Circumference of portion' : 'Area of portion';
+      const typeText = h.kind === 'circ' ? 'Circumference' : 'Area';
       const givenLabel = h.givenType === 'r' ? 'radius' : 'diameter';
       const units = h.kind === 'circ' ? 'cm' : 'cm²';
       const userText = (h.userAnswer == null ? 'no answer' : h.userAnswer);
       li.textContent =
         (idx + 1) + '. ' + typeText +
-        ' (' + h.portionLabel + '), ' +
-        givenLabel + ' = ' + h.givenValue + ' cm. ' +
+        ' question with ' + givenLabel + ' = ' + h.givenValue + ' cm. ' +
         'You answered ' + userText +
         '. Correct rounded answer: ' + h.correctRounded + ' ' + units +
         (h.timeout ? ' [Timed out]' : '');
@@ -937,6 +855,7 @@
     return n;
   }
 
+  // Game flow
   function loadNewQuestion() {
     clearTimer();
     const mode = els.modeSelect.value;
@@ -947,14 +866,14 @@
     state.awaitingNext = false;
     state.lastResultCorrect = null;
 
-    drawSectorQuestion(els.gameSvg, q);
+    drawCircleQuestion(els.gameSvg, q);
 
     if (q.kind === 'circ') {
       els.questionText.textContent =
-        'Find the circumference of the shaded part of the circle. Use π = 3.14 and round your answer to the nearest whole number.';
+        'Calculate the circumference of the circle. Use π = 3.14 and round your answer to the nearest whole number.';
     } else {
       els.questionText.textContent =
-        'Find the area of the shaded part of the circle. Use π = 3.14 and round your answer to the nearest whole number.';
+        'Calculate the area of the circle. Use π = 3.14 and round your answer to the nearest whole number.';
     }
 
     if (q.givenType === 'r') {
@@ -963,8 +882,6 @@
       els.givenText.textContent = 'Given: diameter d = ' + q.givenValue + ' cm.';
     }
 
-    els.portionText.textContent = 'Portion: ' + q.portionLabel;
-
     els.answerInput.value = '';
     els.answerInput.disabled = false;
     els.submitBtn.disabled = false;
@@ -972,7 +889,7 @@
     els.showStepsBtn.style.display = 'none';
 
     setFeedback(null, 'New question',
-      'Use the correct formula for the full circle, then multiply by the fraction of the circle and round to the nearest whole number.');
+      'Use the correct formula, substitute the value, calculate with π = 3.14 and round to the nearest whole number.');
 
     if (els.timerToggle.checked) {
       startTimer();
@@ -1003,17 +920,11 @@
       correctRounded: correctVal,
       userAnswer: userVal,
       correct: isCorrect,
-      timeout: !!fromTimeout,
-      fraction: q.fraction,
-      portionLabel: q.portionLabel
+      timeout: !!fromTimeout
     };
     state.history.push(historyEntry);
 
     const units = q.kind === 'circ' ? 'cm' : 'cm²';
-    const fractionStr =
-      q.fraction === 1/4 ? '1/4' :
-      q.fraction === 1/2 ? '1/2' :
-      '3/4';
 
     if (isCorrect) {
       state.correct += 1;
@@ -1025,27 +936,23 @@
 
       let explanation;
       if (q.kind === 'circ') {
-        const fullC = (q.givenType === 'r')
-          ? 2 * PI * q.radius
-          : PI * q.givenValue;
-        explanation =
-          'Step 1: Find the full circumference.\n' +
-          (q.givenType === 'r'
-            ? 'C = 2 × π × r = 2 × 3.14 × ' + q.radius + ' = ' + fullC.toFixed(2) + '.\n'
-            : 'C = π × d = 3.14 × ' + q.givenValue + ' = ' + fullC.toFixed(2) + '.\n') +
-          'Step 2: Take ' + fractionStr + ' of this: ' +
-          fullC.toFixed(2) + ' × ' + fractionStr + ' = ' + q.rawValue.toFixed(2) + '.\n' +
-          'Step 3: Round to the nearest whole number: ' +
-          q.correctRounded + ' ' + units + '.';
+        if (q.givenType === 'r') {
+          explanation =
+            'Using C = 2 × π × r with π = 3.14:\n' +
+            'C = 2 × 3.14 × ' + q.radius + ' = ' + q.rawValue.toFixed(2) + '.\n' +
+            'Rounded to the nearest whole number: ' + correctVal + ' ' + units + '.';
+        } else {
+          explanation =
+            'Using C = π × d with π = 3.14:\n' +
+            'C = 3.14 × ' + (q.givenValue) + ' = ' + q.rawValue.toFixed(2) + '.\n' +
+            'Rounded to the nearest whole number: ' + correctVal + ' ' + units + '.';
+        }
       } else {
-        const fullA = PI * q.radius * q.radius;
         explanation =
-          'Step 1: Find the full area.\n' +
-          'A = π × r² = 3.14 × ' + q.radius + '² = ' + fullA.toFixed(2) + '.\n' +
-          'Step 2: Take ' + fractionStr + ' of this: ' +
-          fullA.toFixed(2) + ' × ' + fractionStr + ' = ' + q.rawValue.toFixed(2) + '.\n' +
-          'Step 3: Round to the nearest whole number: ' +
-          q.correctRounded + ' ' + units + '.';
+          'First find the radius if needed (r = d ÷ 2 when diameter is given).\n' +
+          'Then use A = π × r² with π = 3.14:\n' +
+          'A = 3.14 × ' + q.radius + '² = ' + q.rawValue.toFixed(2) + '.\n' +
+          'Rounded to the nearest whole number: ' + correctVal + ' ' + units + '.';
       }
 
       setFeedback('correct', 'Correct!', explanation);
@@ -1055,7 +962,7 @@
       state.streak = 0;
       setFeedback('incorrect',
         fromTimeout ? "Time's up!" : 'Not quite.',
-        'Make sure you first calculate the full circumference or area using π = 3.14, then multiply by the fraction of the circle and round to the nearest whole number. You can show the steps to see the full working.');
+        'Check that you used the correct formula, used π = 3.14, and rounded to the nearest whole number. You can show the steps to see the full working.');
       els.showStepsBtn.style.display = 'inline-block';
       playBeep('wrong');
     }
@@ -1074,58 +981,42 @@
     if (!q) return;
 
     const units = q.kind === 'circ' ? 'cm' : 'cm²';
-    const fractionStr =
-      q.fraction === 1/4 ? '1/4' :
-      q.fraction === 1/2 ? '1/2' :
-      '3/4';
-
     let explanation = '';
 
     if (q.kind === 'circ') {
-      explanation += 'We are finding the circumference of the shaded part.\n';
+      explanation += 'We are finding the circumference.\n';
       if (q.givenType === 'r') {
         explanation += 'Given radius r = ' + q.radius + ' cm.\n';
-        const fullC = 2 * PI * q.radius;
-        explanation += '1) Full circumference: C = 2 × π × r = 2 × 3.14 × ' +
-          q.radius + ' = ' + fullC.toFixed(2) + '.\n';
-        explanation += '2) Portion: ' + fractionStr + ' of ' +
-          fullC.toFixed(2) + ' = ' + q.rawValue.toFixed(2) + '.\n';
+        explanation += 'Use the formula C = 2 × π × r with π = 3.14.\n';
+        explanation += 'C = 2 × 3.14 × ' + q.radius + ' = ' + q.rawValue.toFixed(2) + '.\n';
       } else {
         explanation += 'Given diameter d = ' + q.givenValue + ' cm.\n';
-        const fullC = PI * q.givenValue;
-        explanation += '1) Full circumference: C = π × d = 3.14 × ' +
-          q.givenValue + ' = ' + fullC.toFixed(2) + '.\n';
-        explanation += '2) Portion: ' + fractionStr + ' of ' +
-          fullC.toFixed(2) + ' = ' + q.rawValue.toFixed(2) + '.\n';
+        explanation += 'Use the formula C = π × d with π = 3.14.\n';
+        explanation += 'C = 3.14 × ' + q.givenValue + ' = ' + q.rawValue.toFixed(2) + '.\n';
       }
-      explanation += '3) Round to the nearest whole number: ' +
-        q.correctRounded + ' ' + units + '.';
+      explanation += 'Round to the nearest whole number: ' + q.correctRounded + ' ' + units + '.';
     } else {
-      explanation += 'We are finding the area of the shaded part.\n';
+      explanation += 'We are finding the area.\n';
       if (q.givenType === 'd') {
         explanation += 'Given diameter d = ' + q.givenValue + ' cm.\n';
-        explanation += 'First find the radius: r = d ÷ 2 = ' +
-          q.givenValue + ' ÷ 2 = ' + q.radius + ' cm.\n';
+        explanation += 'First find the radius: r = d ÷ 2 = ' + q.givenValue + ' ÷ 2 = ' + q.radius + ' cm.\n';
       } else {
         explanation += 'Given radius r = ' + q.radius + ' cm.\n';
       }
-      const fullA = PI * q.radius * q.radius;
-      explanation += '1) Full area: A = π × r² = 3.14 × ' +
-        q.radius + '² = ' + fullA.toFixed(2) + '.\n';
-      explanation += '2) Portion: ' + fractionStr + ' of ' +
-        fullA.toFixed(2) + ' = ' + q.rawValue.toFixed(2) + '.\n';
-      explanation += '3) Round to the nearest whole number: ' +
-        q.correctRounded + ' ' + units + '.';
+      explanation += 'Use the formula A = π × r² with π = 3.14.\n';
+      explanation += 'A = 3.14 × ' + q.radius + '² = ' + q.rawValue.toFixed(2) + '.\n';
+      explanation += 'Round to the nearest whole number: ' + q.correctRounded + ' ' + units + '.';
     }
 
     els.feedbackBody.textContent = explanation;
   }
 
+  // Worksheet mode
   function createWorksheetSvg(question) {
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('viewBox', '0 0 260 260');
     svg.classList.add('ws-svg');
-    drawSectorQuestion(svg, question);
+    drawCircleQuestion(svg, question);
     return svg;
   }
 
@@ -1149,27 +1040,13 @@
 
     if (question.kind === 'circ') {
       text.textContent =
-        'Find the circumference of the shaded part of the circle. Use π = 3.14 and round your answer to the nearest whole number.';
+        'Calculate the circumference of the circle. Use π = 3.14 and round your answer to the nearest whole number.';
     } else {
       text.textContent =
-        'Find the area of the shaded part of the circle. Use π = 3.14 and round your answer to the nearest whole number.';
+        'Calculate the area of the circle. Use π = 3.14 and round your answer to the nearest whole number.';
     }
 
     textCol.appendChild(text);
-
-    const portion = document.createElement('div');
-    portion.className = 'ws-text';
-    portion.textContent = 'Portion: ' + question.portionLabel;
-    textCol.appendChild(portion);
-
-    const given = document.createElement('div');
-    given.className = 'ws-text';
-    if (question.givenType === 'r') {
-      given.textContent = 'Given: radius r = ' + question.givenValue + ' cm.';
-    } else {
-      given.textContent = 'Given: diameter d = ' + question.givenValue + ' cm.';
-    }
-    textCol.appendChild(given);
 
     const blank = document.createElement('div');
     blank.className = 'ws-blank-line';
@@ -1182,10 +1059,10 @@
     const units = question.kind === 'circ' ? 'cm' : 'cm²';
     if (question.kind === 'circ') {
       ans.textContent =
-        'Answer: The circumference of the shaded part is ' + question.correctRounded + ' ' + units + '.';
+        'Answer: The circumference is ' + question.correctRounded + ' ' + units + '.';
     } else {
       ans.textContent =
-        'Answer: The area of the shaded part is ' + question.correctRounded + ' ' + units + '.';
+        'Answer: The area is ' + question.correctRounded + ' ' + units + '.';
     }
 
     textCol.appendChild(ans);
@@ -1214,6 +1091,7 @@
     });
   }
 
+  // Tabs
   els.tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.getAttribute('data-tab');
@@ -1229,6 +1107,7 @@
     });
   });
 
+  // Events
   els.submitBtn.addEventListener('click', () => {
     if (!state.currentQuestion || state.awaitingNext) return;
     clearTimer();
@@ -1292,6 +1171,7 @@
     window.print();
   });
 
+  // Keyboard
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -1307,32 +1187,41 @@
     }
   });
 
+  // Dev tests
   function runDevTests() {
     const results = [];
     function add(name, pass, note) {
       results.push({ name, pass, note: note || '' });
     }
 
-    state.portionIndex = 0;
-    const seen = [];
-    for (let i = 0; i < 6; i++) {
-      const p = getNextPortion();
-      seen.push(p.fraction);
-    }
-    const expected = [1/4,1/2,3/4,1/4,1/2,3/4];
-    const cycleOK = seen.length === expected.length &&
-      seen.every((v,i) => Math.abs(v - expected[i]) < 1e-9);
-    add('Portion cycle 1/4 → 1/2 → 3/4', cycleOK, '');
+    let circCount = 0, areaCount = 0;
+    let rCount = 0, dCount = 0;
+    let rRangeOK = true, dRangeOK = true;
 
-    let halfUsesD = true;
-    let othersUseR = true;
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 120; i++) {
       const q = generateQuestion('mixed');
-      if (Math.abs(q.fraction - 0.5) < 1e-6 && q.givenType !== 'd') halfUsesD = false;
-      if (Math.abs(q.fraction - 0.5) > 1e-6 && q.givenType !== 'r') othersUseR = false;
+      if (q.kind === 'circ') circCount++; else areaCount++;
+      if (q.givenType === 'r') {
+        rCount++;
+        if (q.radius < 2 || q.radius > 20) rRangeOK = false;
+      } else {
+        dCount++;
+        if (q.givenValue < 4 || q.givenValue > 40 || q.givenValue % 2 !== 0) dRangeOK = false;
+      }
     }
-    add('Half-circle uses diameter', halfUsesD, '');
-    add('Quarter & three-quarter use radius', othersUseR, '');
+
+    add('Mixed mode generates both circumference and area', circCount > 0 && areaCount > 0,
+      'Circ: ' + circCount + ', Area: ' + areaCount);
+    add('Radius range 2–20', rRangeOK, '');
+    add('Diameter range 4–40 even', dRangeOK, '');
+
+    let roundingOK = true;
+    for (let i = 0; i < 50; i++) {
+      const q = generateQuestion('circumference');
+      const manual = Math.round(q.rawValue);
+      if (manual !== q.correctRounded) roundingOK = false;
+    }
+    add('Rounding uses nearest whole number', roundingOK, '');
 
     els.wsCount.value = '7';
     generateWorksheet();
@@ -1357,6 +1246,7 @@
     runDevTests();
   }
 
+  // Initial
   els.timerToggle.checked = false;
   updateTimerDisplay();
   loadNewQuestion();
