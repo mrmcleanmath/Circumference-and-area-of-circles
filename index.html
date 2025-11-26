@@ -516,9 +516,9 @@
 <script>
 (function() {
   const svgNS = 'http://www.w3.org/2000/svg';
-  const PI = 3.14;
+  const PI = 3.14; // all calculations use π = 3.14 (no Math.PI anywhere)
 
-  // Circle templates: only center + pixel radius now (no angle)
+  // Circle templates: only center + pixel radius
   const circTemplates = [
     { cx: 130, cy: 130, rPx: 70 },
     { cx: 130, cy: 125, rPx: 65 },
@@ -554,7 +554,8 @@
     streak: 0,
     bestStreak: 0,
     history: [],
-    lastResultCorrect: null
+    lastResultCorrect: null,
+    recentKeys: [] // track recent radius/diameter to avoid repeats
   };
 
   const els = {
@@ -629,51 +630,70 @@
     } catch(e) {}
   }
 
-  // Question generator
+  // Question generator with recent-value avoidance
   function generateQuestion(mode) {
     const kind =
       mode === 'circumference' ? 'circ' :
       mode === 'area' ? 'area' :
       (Math.random() < 0.5 ? 'circ' : 'area');
 
-    const givenType = Math.random() < 0.5 ? 'r' : 'd';
-    let rVal, dVal;
+    let q;
+    let attempts = 0;
 
-    if (givenType === 'r') {
-      rVal = randomInt(2, 20);
-      dVal = 2 * rVal;
-    } else {
-      dVal = 2 * randomInt(2, 20);
-      rVal = dVal / 2;
-    }
+    do {
+      const givenType = Math.random() < 0.5 ? 'r' : 'd';
+      let rVal, dVal;
 
-    let rawValue;
-    if (kind === 'circ') {
       if (givenType === 'r') {
-        rawValue = 2 * PI * rVal;
+        rVal = randomInt(2, 20);
+        dVal = 2 * rVal;
       } else {
-        rawValue = PI * dVal;
+        dVal = 2 * randomInt(2, 20);
+        rVal = dVal / 2;
       }
-    } else {
-      rawValue = PI * rVal * rVal;
+
+      let rawValue;
+      if (kind === 'circ') {
+        if (givenType === 'r') {
+          rawValue = 2 * PI * rVal;
+        } else {
+          rawValue = PI * dVal;
+        }
+      } else {
+        rawValue = PI * rVal * rVal;
+      }
+
+      const rounded = Math.round(rawValue);
+      const template =
+        kind === 'circ'
+          ? randomChoice(circTemplates)
+          : randomChoice(areaTemplates);
+
+      const givenValue = givenType === 'r' ? rVal : dVal;
+      const key = givenType + ':' + givenValue; // avoid repeating same radius/diameter
+
+      q = {
+        kind,             // 'circ' or 'area'
+        givenType,        // 'r' or 'd'
+        givenValue,
+        radius: rVal,
+        rawValue,
+        correctRounded: rounded,
+        template,
+        key
+      };
+
+      attempts++;
+      // Keep trying if we've used this radius/diameter recently
+    } while (state.recentKeys.includes(q.key) && attempts < 20);
+
+    // Update recent keys buffer (limit size so it doesn't grow forever)
+    state.recentKeys.push(q.key);
+    if (state.recentKeys.length > 8) {
+      state.recentKeys.shift();
     }
 
-    const rounded = Math.round(rawValue);
-
-    const template =
-      kind === 'circ'
-        ? randomChoice(circTemplates)
-        : randomChoice(areaTemplates);
-
-    return {
-      kind,             // 'circ' or 'area'
-      givenType,        // 'r' or 'd'
-      givenValue: givenType === 'r' ? rVal : dVal,
-      radius: rVal,
-      rawValue,
-      correctRounded: rounded,
-      template
-    };
+    return q;
   }
 
   // Timer
@@ -845,11 +865,14 @@
     });
   }
 
+  // Input parser – now accepts spaces in large numbers (e.g. "1 256")
   function parseInputValue(val) {
     if (val == null) return null;
     const trimmed = val.toString().trim();
     if (trimmed === '') return null;
-    const normalized = trimmed.replace(',', '.');
+    // Remove all spaces (thousands separators), allow comma as decimal
+    const noSpaces = trimmed.replace(/\s+/g, '');
+    const normalized = noSpaces.replace(',', '.');
     const n = Number(normalized);
     if (!isFinite(n)) return null;
     return n;
@@ -1151,6 +1174,8 @@
   });
 
   els.modeSelect.addEventListener('change', () => {
+    // reset recentKeys when changing mode to keep variety fresh
+    state.recentKeys = [];
     loadNewQuestion();
   });
 
@@ -1171,9 +1196,10 @@
     window.print();
   });
 
-  // Keyboard
+  // Keyboard – now ignores auto-repeat on Enter to prevent instant auto-next
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
+      if (e.repeat) return; // prevent key repeat from auto-advancing
       e.preventDefault();
       if (!state.awaitingNext) {
         els.submitBtn.click();
