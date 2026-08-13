@@ -1,1282 +1,536 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Circumference and Area of Circles – Mr. McLean Math</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    :root {
-      --bg: #f5f5f5;
-      --fg: #222222;
-      --accent: #2b7cff;
-      --accent-soft: #e2ecff;
-      --error: #c62828;
-      --correct: #2e7d32;
-      --card-bg: #ffffff;
-      --border-subtle: #dddddd;
-    }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont,
-        "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-    }
-
-    body.high-contrast {
-      --bg: #ffffff;
-      --fg: #000000;
-      --accent: #0000cc;
-      --accent-soft: #dde5ff;
-      --card-bg: #ffffff;
-      --border-subtle: #000000;
-    }
-
-    .app {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 1rem 1rem 2rem;
-    }
-
-    h1 {
-      font-size: 1.7rem;
-      margin: 0 0 0.25rem;
-    }
-
-    .subtitle {
-      margin: 0 0 0.5rem;
-      font-size: 0.95rem;
-      color: #555;
-    }
-
-    .note {
-      margin: 0 0 1rem;
-      font-size: 0.9rem;
-      font-style: italic;
-      color: #444;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 1rem 1.25rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      border: 1px solid var(--border-subtle);
-      margin-bottom: 1rem;
-    }
-
-    .tab-row {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 0.75rem;
-      flex-wrap: wrap;
-    }
-
-    .tab-button {
-      padding: 0.4rem 0.9rem;
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      background: #f0f0f0;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-
-    .tab-button.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-
-    .controls-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      align-items: center;
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .controls-row label {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      cursor: pointer;
-    }
-
-    .controls-row select {
-      padding: 0.15rem 0.25rem;
-      font-size: 0.9rem;
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      padding: 0.15rem 0.45rem;
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      font-size: 0.8rem;
-      background: #f9f9f9;
-    }
-
-    .timer-indicator {
-      font-weight: 600;
-    }
-
-    .game-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 2fr) minmax(0, 1.6fr);
-      gap: 1rem;
-      align-items: stretch;
-    }
-
-    @media (max-width: 800px) {
-      .game-layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    svg {
-      max-width: 100%;
-      height: auto;
-    }
-
-    .diagram-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .question-text {
-      font-size: 1rem;
-      text-align: center;
-    }
-
-    .given-text {
-      font-size: 0.95rem;
-      text-align: center;
-      margin-top: 0.25rem;
-    }
-
-    .inputs-row {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      align-items: center;
-      font-size: 1.1rem;
-    }
-
-    .inputs-row label {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    input[type="number"], input[type="text"] {
-      width: 7rem;
-      padding: 0.3rem 0.4rem;
-      font-size: 1.1rem;
-      text-align: center;
-      border-radius: 6px;
-      border: 1px solid var(--border-subtle);
-    }
-
-    input[type="number"]:focus,
-    input[type="text"]:focus {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-      border-color: var(--accent);
-    }
-
-    .button-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: center;
-      margin-top: 0.5rem;
-    }
-
-    button {
-      border-radius: 999px;
-      border: 1px solid var(--accent);
-      background: var(--accent);
-      color: #fff;
-      padding: 0.45rem 0.9rem;
-      font-size: 0.9rem;
-      cursor: pointer;
-      min-width: 90px;
-    }
-
-    button.secondary {
-      background: #f0f3ff;
-      color: var(--accent);
-    }
-
-    button.ghost {
-      background: transparent;
-      color: var(--accent);
-      border-color: transparent;
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: default;
-    }
-
-    .feedback-panel {
-      font-size: 0.95rem;
-      border-radius: 10px;
-      padding: 0.75rem;
-      background: #fafafa;
-      border: 1px dashed var(--border-subtle);
-      min-height: 3.5rem;
-    }
-
-    .feedback-panel.correct {
-      border-color: var(--correct);
-      background: #e7f6e9;
-    }
-
-    .feedback-panel.incorrect {
-      border-color: var(--error);
-      background: #ffebee;
-    }
-
-    .feedback-title {
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-
-    .stats {
-      font-size: 0.85rem;
-      margin-top: 0.5rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-      gap: 0.25rem 0.75rem;
-    }
-
-    .summary {
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-    }
-
-    .summary-details {
-      margin-top: 0.35rem;
-      padding-left: 1rem;
-      font-size: 0.85rem;
-    }
-
-    .summary-details li {
-      margin-bottom: 0.15rem;
-    }
-
-    .worksheet-controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      align-items: center;
-      margin-bottom: 0.75rem;
-      font-size: 0.9rem;
-    }
-
-    .worksheet-controls label {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      cursor: pointer;
-    }
-
-    .worksheet-controls select {
-      padding: 0.15rem 0.25rem;
-      font-size: 0.9rem;
-    }
-
-    .worksheet-container {
-      border-top: 1px solid var(--border-subtle);
-      margin-top: 0.75rem;
-      padding-top: 0.75rem;
-    }
-
-    .ws-question {
-      margin-bottom: 2.7rem;
-      page-break-inside: avoid;
-    }
-
-    .ws-diagram-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      align-items: center;
-    }
-
-    .ws-svg {
-      width: 260px;
-      max-width: 100%;
-      height: auto;
-    }
-
-    .ws-text {
-      font-size: 0.95rem;
-    }
-
-    .ws-blank-line {
-      font-size: 1rem;
-      margin-top: 0.35rem;
-    }
-
-    .ws-answer {
-      font-size: 0.9rem;
-      margin-top: 0.25rem;
-      visibility: hidden;
-    }
-
-    .ws-answer.visible {
-      visibility: visible;
-    }
-
-    footer {
-      margin-top: 1rem;
-      font-size: 0.8rem;
-      text-align: center;
-      color: #777;
-    }
-
-    #dev-tests {
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
-      border-top: 1px dashed var(--border-subtle);
-      padding-top: 0.5rem;
-      display: none;
-    }
-
-    #dev-tests ul {
-      padding-left: 1.1rem;
-      margin: 0.2rem 0 0;
-    }
-
-    #dev-tests li {
-      margin-bottom: 0.15rem;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circumference and Area of Circles — Mr. McLean Math</title>
+<style>
+  :root{
+    --bg:#f5f6f8;
+    --panel:#ffffff;
+    --text:#202124;
+    --muted:#666b73;
+    --border:#d9dde3;
+    --accent:#1976d2;
+    --accent-soft:#e8f1fb;
+    --good:#247a3b;
+    --bad:#b3261e;
+    --focus:#f5b400;
+    --diagram:#3f4348;
+    --area-fill:#dff3df;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    line-height:1.45;
+  }
+  body.high-contrast{
+    --bg:#000;--panel:#080808;--text:#fff;--muted:#ddd;--border:#777;
+    --accent:#00d7ff;--accent-soft:#111;--good:#68ff8b;--bad:#ff7474;
+    --focus:#ffea00;--diagram:#fff;--area-fill:#111;
+  }
+  .app{max-width:900px;margin:0 auto;padding:18px}
+  header{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:12px;flex-wrap:wrap;margin-bottom:14px;
+  }
+  h1{margin:0;font-size:clamp(28px,5vw,36px)}
+  .mode-buttons,.toolbar,.type-buttons,.ws-controls{
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+  }
+  .toolbar{justify-content:space-between;margin-bottom:14px}
+  button,select,input{font:inherit}
+  button,select{
+    border:1px solid var(--border);border-radius:10px;background:var(--panel);
+    color:var(--text);padding:9px 13px;
+  }
+  button{cursor:pointer;font-weight:650}
+  button:hover{border-color:var(--accent)}
+  button:focus-visible,input:focus-visible,select:focus-visible{
+    outline:3px solid var(--focus);outline-offset:2px;
+  }
+  button[aria-pressed="true"],button.primary{
+    background:var(--accent);color:#fff;border-color:var(--accent);
+  }
+  .panel{
+    background:var(--panel);border:1px solid var(--border);
+    border-radius:16px;padding:18px;
+  }
+  .practice{display:grid;gap:14px}
+  .diagram-wrap{text-align:center}
+  svg{width:min(330px,100%);height:auto}
+  .question{
+    text-align:center;font-size:clamp(22px,4vw,28px);font-weight:700;
+  }
+  .given{text-align:center;color:var(--muted);font-size:17px}
+  .note{text-align:center;color:var(--muted);font-size:14px}
+  .answer-row{
+    display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;
+  }
+  input[type="text"]{
+    width:min(240px,100%);font-size:21px;text-align:center;
+    padding:10px 11px;border:1px solid var(--border);border-radius:9px;
+    background:var(--panel);color:var(--text);
+  }
+  .feedback{
+    min-height:28px;text-align:center;font-size:18px;font-weight:700;
+  }
+  .feedback.correct{color:var(--good)}
+  .feedback.incorrect{color:var(--bad)}
+  .steps{
+    max-width:620px;width:100%;margin:0 auto;background:var(--accent-soft);
+    border:1px solid var(--border);border-radius:11px;padding:11px 13px;
+    white-space:pre-line;
+  }
+  .stats{
+    display:flex;justify-content:center;gap:20px;color:var(--muted);font-size:15px;
+  }
+  .worksheet{display:none}
+  .ws-controls{margin-bottom:14px}
+  .ws-list{display:grid;gap:18px}
+  .ws-item{
+    border-bottom:1px solid var(--border);padding-bottom:16px;
+    break-inside:avoid;
+  }
+  .ws-row{
+    display:grid;grid-template-columns:minmax(180px,260px) 1fr;gap:14px;align-items:center;
+  }
+  .ws-svg{width:240px;max-width:100%}
+  .ws-text{font-size:16px}
+  .ws-answer{display:none;margin-top:8px;font-weight:700;color:var(--good)}
+  .ws-reveal{margin-top:8px;padding:6px 10px;font-size:14px}
+  footer{text-align:center;color:var(--muted);font-size:14px;margin-top:18px}
+  .sr-only{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+  @media(max-width:620px){
+    .app{padding:13px}.panel{padding:14px}.ws-row{grid-template-columns:1fr}
+    .answer-row{align-items:stretch}
+    input[type="text"],.answer-row button{width:100%}
+  }
+  @media print{
+    header,.toolbar,footer,.ws-controls,.ws-reveal{display:none!important}
+    body{background:#fff;color:#000}
+    .app{max-width:none;padding:0}.panel{border:0;padding:0;background:#fff}
+    .worksheet{display:block!important}
+    .ws-item{page-break-inside:avoid}
+    .ws-answer{display:none!important}
+  }
+</style>
 </head>
 <body>
 <div class="app">
   <header>
-    <h1>Circumference and Area of Circles</h1>
-    <p class="subtitle">
-      Practice calculating the circumference and area of full circles using radius or diameter.
-    </p>
-    <p class="note">
-      Use π = 3.14 and round your answers to the nearest whole number. Diagrams are not drawn to scale.
-    </p>
+    <h1>Circumference &amp; Area of Circles</h1>
+    <div class="mode-buttons" role="group" aria-label="Mode">
+      <button id="practiceBtn" aria-pressed="true">Practice</button>
+      <button id="worksheetBtn" aria-pressed="false">Worksheet</button>
+    </div>
   </header>
 
-  <div class="card">
-    <div class="tab-row">
-      <button class="tab-button active" data-tab="game">Game mode</button>
-      <button class="tab-button" data-tab="worksheet">Worksheet mode</button>
+  <div class="toolbar">
+    <div class="type-buttons" id="types" role="group" aria-label="Question type">
+      <button data-type="circumference" aria-pressed="true">Circumference</button>
+      <button data-type="area" aria-pressed="false">Area</button>
+      <button data-type="mixed" aria-pressed="false">Mixed</button>
     </div>
-
-    <!-- GAME TAB -->
-    <div id="game-tab">
-      <div class="controls-row">
-        <label>
-          Question type:
-          <select id="mode-select">
-            <option value="circumference" selected>Circumference</option>
-            <option value="area">Area</option>
-            <option value="mixed">Mixed</option>
-          </select>
-        </label>
-        <label>
-          <input type="checkbox" id="timer-toggle">
-          Use timer
-        </label>
-        <label>
-          Duration
-          <select id="timer-duration">
-            <option value="30">30 s</option>
-            <option value="60" selected>60 s</option>
-            <option value="90">90 s</option>
-            <option value="120">120 s</option>
-          </select>
-        </label>
-        <span class="chip">
-          Timer:
-          <span id="timer-display" class="timer-indicator">Off</span>
-        </span>
-        <label>
-          <input type="checkbox" id="sound-toggle" checked>
-          Sound on
-        </label>
-        <label>
-          <input type="checkbox" id="contrast-toggle">
-          High contrast
-        </label>
-      </div>
-
-      <div class="game-layout">
-        <div class="diagram-wrap">
-          <svg id="game-svg" viewBox="0 0 260 260" aria-hidden="true"></svg>
-
-          <div class="question-text" id="question-text"></div>
-          <div class="given-text" id="given-text"></div>
-
-          <div class="inputs-row">
-            <label for="answer-input">
-              Answer:
-              <input id="answer-input" type="text" inputmode="decimal" aria-label="Answer">
-            </label>
-            <div style="font-size:0.85rem; text-align:center;">
-              Do not write units. Use π = 3.14 and round to the nearest whole number.
-            </div>
-          </div>
-
-          <div class="button-row">
-            <button id="submit-btn">Submit</button>
-            <button id="next-btn" class="secondary" disabled>Next</button>
-            <button id="clear-btn" class="ghost" type="button">Clear</button>
-          </div>
-
-          <p style="font-size:0.8rem; text-align:center; margin-top:0.35rem;">
-            Keyboard: Enter = Submit / Next • Esc = Clear input
-          </p>
-        </div>
-
-        <div>
-          <div id="feedback" class="feedback-panel" aria-live="polite">
-            <div class="feedback-title">Answer the question to see feedback.</div>
-            <div id="feedback-body">
-              Choose a question type, then calculate the circumference or area and round to the nearest whole number.
-            </div>
-            <button id="show-steps-btn" class="ghost" style="margin-top:0.4rem; display:none;">
-              Show steps
-            </button>
-          </div>
-
-          <div class="stats">
-            <span><strong>Total:</strong> <span id="stat-total">0</span></span>
-            <span><strong>Correct:</strong> <span id="stat-correct">0</span></span>
-            <span><strong>Accuracy:</strong> <span id="stat-accuracy">0</span>%</span>
-            <span><strong>Score:</strong> <span id="stat-score">0</span></span>
-            <span><strong>Streak:</strong> <span id="stat-streak">0</span></span>
-            <span><strong>Best streak:</strong> <span id="stat-best-streak">0</span></span>
-          </div>
-
-          <div class="summary">
-            <details>
-              <summary>Session summary – incorrect questions</summary>
-              <ul id="incorrect-list" class="summary-details"></ul>
-            </details>
-          </div>
-
-          <div id="dev-tests" class="card" style="margin-top:0.75rem; padding:0.5rem 0.75rem;">
-            <strong>Developer tests</strong>
-            <ul id="dev-tests-list"></ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- WORKSHEET TAB -->
-    <div id="worksheet-tab" style="display:none;">
-      <div class="worksheet-controls">
-        <label>
-          Question type:
-          <select id="ws-mode-select">
-            <option value="circumference" selected>Circumference</option>
-            <option value="area">Area</option>
-            <option value="mixed">Mixed</option>
-          </select>
-        </label>
-        <label>
-          Number of questions:
-          <select id="ws-count">
-            <option value="5">5</option>
-            <option value="10" selected>10</option>
-            <option value="15">15</option>
-          </select>
-        </label>
-        <button id="ws-generate-btn">Generate worksheet</button>
-        <button id="ws-show-btn" class="secondary">Reveal all answers</button>
-        <button id="ws-hide-btn" class="ghost">Hide all answers</button>
-        <button id="ws-print-btn" class="ghost">Print</button>
-      </div>
-      <div class="worksheet-container" id="worksheet-container"></div>
-    </div>
+    <button id="contrastBtn" aria-pressed="false">High contrast</button>
   </div>
 
-  <footer>
-    Created by Mr. McLean Math.
-  </footer>
+  <section id="practice" class="panel practice" aria-label="Practice mode">
+    <div class="diagram-wrap">
+      <svg id="diagram" viewBox="0 0 260 260" role="img" aria-label="Circle diagram"></svg>
+    </div>
+
+    <div id="question" class="question" aria-live="polite"></div>
+    <div id="given" class="given"></div>
+    <div class="note">Use π = 3.14. Round to the nearest whole number. Do not enter units.</div>
+
+    <div class="answer-row">
+      <input id="answer" type="text" inputmode="numeric" autocomplete="off"
+             aria-label="Your answer" placeholder="Enter answer">
+      <button id="check" class="primary">Check</button>
+      <button id="next" hidden>Next</button>
+    </div>
+
+    <div id="feedback" class="feedback" aria-live="polite"></div>
+    <button id="showSteps" hidden style="justify-self:center">Show steps</button>
+    <div id="steps" class="steps" hidden></div>
+
+    <div class="stats">
+      <span>Correct: <strong id="correctCount">0</strong></span>
+      <span>Incorrect: <strong id="incorrectCount">0</strong></span>
+    </div>
+  </section>
+
+  <section id="worksheet" class="panel worksheet" aria-label="Worksheet mode">
+    <div class="ws-controls">
+      <label for="wsType">Question type:</label>
+      <select id="wsType">
+        <option value="circumference">Circumference</option>
+        <option value="area">Area</option>
+        <option value="mixed">Mixed</option>
+      </select>
+
+      <label for="wsCount">Questions:</label>
+      <select id="wsCount">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="15">15</option>
+      </select>
+
+      <button id="generateWs">Generate</button>
+      <button id="revealAll">Reveal all</button>
+      <button id="hideAll">Hide all</button>
+      <button id="printWs">Print</button>
+    </div>
+
+    <div class="note" style="text-align:left;margin-bottom:14px">
+      Use π = 3.14 and round each answer to the nearest whole number.
+    </div>
+    <div id="wsList" class="ws-list"></div>
+  </section>
+
+  <footer>Created by Mr. McLean Math</footer>
+  <div id="live" class="sr-only" aria-live="assertive"></div>
 </div>
 
 <script>
-(function() {
-  const svgNS = 'http://www.w3.org/2000/svg';
-  const PI = 3.14; // all calculations use π = 3.14 (no Math.PI anywhere)
+const SVG_NS='http://www.w3.org/2000/svg';
+const PI=3.14;
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
 
-  // Circle templates: only center + pixel radius
-  const circTemplates = [
-    { cx: 130, cy: 130, rPx: 70 },
-    { cx: 130, cy: 125, rPx: 65 },
-    { cx: 130, cy: 135, rPx: 75 },
-    { cx: 125, cy: 130, rPx: 70 },
-    { cx: 135, cy: 130, rPx: 70 },
-    { cx: 130, cy: 120, rPx: 65 },
-    { cx: 130, cy: 140, rPx: 75 },
-    { cx: 128, cy: 132, rPx: 68 }
-  ];
+const state={
+  mode:'practice',
+  type:'circumference',
+  current:null,
+  evaluated:false,
+  correct:0,
+  incorrect:0,
+  recentKeys:[]
+};
 
-  const areaTemplates = [
-    { cx: 130, cy: 130, rPx: 80 },
-    { cx: 130, cy: 125, rPx: 78 },
-    { cx: 130, cy: 135, rPx: 76 },
-    { cx: 125, cy: 130, rPx: 80 },
-    { cx: 135, cy: 130, rPx: 80 },
-    { cx: 130, cy: 120, rPx: 78 },
-    { cx: 130, cy: 140, rPx: 78 },
-    { cx: 128, cy: 132, rPx: 79 }
-  ];
+function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
 
-  const state = {
-    mode: 'circumference',
-    currentQuestion: null,
-    awaitingNext: false,
-    timerId: null,
-    timerOn: false,
-    timerRemaining: 0,
-    total: 0,
-    correct: 0,
-    score: 0,
-    streak: 0,
-    bestStreak: 0,
-    history: [],
-    lastResultCorrect: null,
-    recentKeys: [] // track recent radius/diameter to avoid repeats
-  };
+function generateQuestion(type=state.type,trackRecent=true){
+  const kind=type==='mixed'
+    ? (Math.random()<0.5?'circumference':'area')
+    : type;
 
-  const els = {
-    tabButtons: document.querySelectorAll('.tab-button'),
-    gameTab: document.getElementById('game-tab'),
-    worksheetTab: document.getElementById('worksheet-tab'),
-    modeSelect: document.getElementById('mode-select'),
-    timerToggle: document.getElementById('timer-toggle'),
-    timerDuration: document.getElementById('timer-duration'),
-    timerDisplay: document.getElementById('timer-display'),
-    soundToggle: document.getElementById('sound-toggle'),
-    contrastToggle: document.getElementById('contrast-toggle'),
-    gameSvg: document.getElementById('game-svg'),
-    questionText: document.getElementById('question-text'),
-    givenText: document.getElementById('given-text'),
-    answerInput: document.getElementById('answer-input'),
-    submitBtn: document.getElementById('submit-btn'),
-    nextBtn: document.getElementById('next-btn'),
-    clearBtn: document.getElementById('clear-btn'),
-    feedback: document.getElementById('feedback'),
-    feedbackTitle: document.querySelector('.feedback-title'),
-    feedbackBody: document.getElementById('feedback-body'),
-    showStepsBtn: document.getElementById('show-steps-btn'),
-    statTotal: document.getElementById('stat-total'),
-    statCorrect: document.getElementById('stat-correct'),
-    statAccuracy: document.getElementById('stat-accuracy'),
-    statScore: document.getElementById('stat-score'),
-    statStreak: document.getElementById('stat-streak'),
-    statBestStreak: document.getElementById('stat-best-streak'),
-    incorrectList: document.getElementById('incorrect-list'),
-    wsModeSelect: document.getElementById('ws-mode-select'),
-    wsCount: document.getElementById('ws-count'),
-    wsGenerateBtn: document.getElementById('ws-generate-btn'),
-    wsShowBtn: document.getElementById('ws-show-btn'),
-    wsHideBtn: document.getElementById('ws-hide-btn'),
-    wsPrintBtn: document.getElementById('ws-print-btn'),
-    wsContainer: document.getElementById('worksheet-container'),
-    devTests: document.getElementById('dev-tests'),
-    devTestsList: document.getElementById('dev-tests-list')
-  };
-
-  function formatInt(n) {
-    const s = Math.trunc(n).toString();
-    return s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  }
-
-  function randomChoice(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-
-  function randomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-
-  // Audio
-  let audioCtx = null;
-  function playBeep(type) {
-    if (!els.soundToggle.checked) return;
-    try {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const duration = type === 'correct' ? 0.12 : 0.18;
-      const frequency = type === 'correct' ? 900 : 260;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = frequency;
-      gain.gain.value = 0.12;
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-    } catch(e) {}
-  }
-
-  // Question generator with recent-value avoidance
-  function generateQuestion(mode) {
-    const kind =
-      mode === 'circumference' ? 'circ' :
-      mode === 'area' ? 'area' :
-      (Math.random() < 0.5 ? 'circ' : 'area');
-
-    let q;
-    let attempts = 0;
-
-    do {
-      const givenType = Math.random() < 0.5 ? 'r' : 'd';
-      let rVal, dVal;
-
-      if (givenType === 'r') {
-        rVal = randomInt(2, 20);
-        dVal = 2 * rVal;
-      } else {
-        dVal = 2 * randomInt(2, 20);
-        rVal = dVal / 2;
-      }
-
-      let rawValue;
-      if (kind === 'circ') {
-        if (givenType === 'r') {
-          rawValue = 2 * PI * rVal;
-        } else {
-          rawValue = PI * dVal;
-        }
-      } else {
-        rawValue = PI * rVal * rVal;
-      }
-
-      const rounded = Math.round(rawValue);
-      const template =
-        kind === 'circ'
-          ? randomChoice(circTemplates)
-          : randomChoice(areaTemplates);
-
-      const givenValue = givenType === 'r' ? rVal : dVal;
-      const key = givenType + ':' + givenValue; // avoid repeating same radius/diameter
-
-      q = {
-        kind,             // 'circ' or 'area'
-        givenType,        // 'r' or 'd'
-        givenValue,
-        radius: rVal,
-        rawValue,
-        correctRounded: rounded,
-        template,
-        key
-      };
-
-      attempts++;
-      // Keep trying if we've used this radius/diameter recently
-    } while (state.recentKeys.includes(q.key) && attempts < 20);
-
-    // Update recent keys buffer (limit size so it doesn't grow forever)
-    state.recentKeys.push(q.key);
-    if (state.recentKeys.length > 8) {
-      state.recentKeys.shift();
+  let q,tries=0;
+  do{
+    const givenType=Math.random()<0.5?'r':'d';
+    let radius,diameter;
+    if(givenType==='r'){
+      radius=randInt(2,20);
+      diameter=2*radius;
+    }else{
+      radius=randInt(2,20);
+      diameter=2*radius;
     }
 
-    return q;
-  }
+    const raw=kind==='circumference'
+      ? (givenType==='r' ? 2*PI*radius : PI*diameter)
+      : PI*radius*radius;
 
-  // Timer
-  function clearTimer() {
-    if (state.timerId) {
-      clearInterval(state.timerId);
-      state.timerId = null;
-    }
-  }
-
-  function updateTimerDisplay() {
-    if (!state.timerOn) {
-      els.timerDisplay.textContent = 'Off';
-      return;
-    }
-    els.timerDisplay.textContent = state.timerRemaining + ' s';
-  }
-
-  function startTimer() {
-    clearTimer();
-    if (!els.timerToggle.checked) {
-      state.timerOn = false;
-      updateTimerDisplay();
-      return;
-    }
-    const dur = parseInt(els.timerDuration.value, 10) || 60;
-    state.timerOn = true;
-    state.timerRemaining = dur;
-    updateTimerDisplay();
-    state.timerId = setInterval(() => {
-      state.timerRemaining -= 1;
-      if (state.timerRemaining <= 0) {
-        clearTimer();
-        state.timerRemaining = 0;
-        updateTimerDisplay();
-        if (!state.awaitingNext) handleTimeout();
-      } else {
-        updateTimerDisplay();
-      }
-    }, 1000);
-  }
-
-  function handleTimeout() {
-    if (!state.currentQuestion) return;
-    gradeQuestion(true);
-    setFeedback('incorrect', "Time's up!",
-      'The correct rounded answer is shown in the explanation. Try the next question.');
-    els.showStepsBtn.style.display = 'inline-block';
-    state.lastResultCorrect = false;
-  }
-
-  // SVG drawing
-  function clearSvg(svg) {
-    while (svg.firstChild) svg.removeChild(svg.firstChild);
-  }
-
-  function drawCircleQuestion(svg, q) {
-    clearSvg(svg);
-    const t = q.template;
-    const cx = t.cx;
-    const cy = t.cy;
-    const rPx = t.rPx;
-
-    const strokeColor = '#444';
-    const fillColor = q.kind === 'area' ? '#d8f5d8' : '#ffffff';
-
-    const circle = document.createElementNS(svgNS, 'circle');
-    circle.setAttribute('cx', cx);
-    circle.setAttribute('cy', cy);
-    circle.setAttribute('r', rPx);
-    circle.setAttribute('fill', fillColor);
-    circle.setAttribute('stroke', strokeColor);
-    circle.setAttribute('stroke-width', '3');
-    svg.appendChild(circle);
-
-    const labelOffsetY = 14;
-
-    if (q.givenType === 'r') {
-      // radius: horizontal to the right
-      const x1 = cx;
-      const y1 = cy;
-      const x2 = cx + rPx;
-      const y2 = cy;
-
-      const line = document.createElementNS(svgNS, 'line');
-      line.setAttribute('x1', x1);
-      line.setAttribute('y1', y1);
-      line.setAttribute('x2', x2);
-      line.setAttribute('y2', y2);
-      line.setAttribute('stroke', strokeColor);
-      line.setAttribute('stroke-width', '3');
-      svg.appendChild(line);
-
-      const midx = (x1 + x2) / 2;
-      const midy = y1;
-
-      const label = document.createElementNS(svgNS, 'text');
-      label.setAttribute('x', midx);
-      label.setAttribute('y', midy - labelOffsetY);
-      label.setAttribute('font-size', '14');
-      label.setAttribute('text-anchor', 'middle');
-      label.setAttribute('fill', strokeColor);
-      label.textContent = 'r = ' + q.givenValue + ' cm';
-      svg.appendChild(label);
-    } else {
-      // diameter: horizontal across the circle
-      const x1 = cx - rPx;
-      const y1 = cy;
-      const x2 = cx + rPx;
-      const y2 = cy;
-
-      const line = document.createElementNS(svgNS, 'line');
-      line.setAttribute('x1', x1);
-      line.setAttribute('y1', y1);
-      line.setAttribute('x2', x2);
-      line.setAttribute('y2', y2);
-      line.setAttribute('stroke', strokeColor);
-      line.setAttribute('stroke-width', '3');
-      svg.appendChild(line);
-
-      const midx = (x1 + x2) / 2;
-      const midy = y1;
-
-      const label = document.createElementNS(svgNS, 'text');
-      label.setAttribute('x', midx);
-      label.setAttribute('y', midy - labelOffsetY);
-      label.setAttribute('font-size', '14');
-      label.setAttribute('text-anchor', 'middle');
-      label.setAttribute('fill', strokeColor);
-      label.textContent = 'd = ' + q.givenValue + ' cm';
-      svg.appendChild(label);
-    }
-  }
-
-  // Feedback & stats
-  function setFeedback(status, title, body) {
-    els.feedback.classList.remove('correct', 'incorrect');
-    if (status === 'correct') els.feedback.classList.add('correct');
-    else if (status === 'incorrect') els.feedback.classList.add('incorrect');
-    els.feedbackTitle.textContent = title;
-    els.feedbackBody.textContent = body;
-  }
-
-  function updateStatsAndSummary() {
-    const { total, correct, score, streak, bestStreak, history } = state;
-    els.statTotal.textContent = formatInt(total);
-    els.statCorrect.textContent = formatInt(correct);
-    const accuracy = total === 0 ? 0 : Math.round((correct / total) * 100);
-    els.statAccuracy.textContent = accuracy;
-    els.statScore.textContent = formatInt(score);
-    els.statStreak.textContent = formatInt(streak);
-    els.statBestStreak.textContent = formatInt(bestStreak);
-
-    els.incorrectList.innerHTML = '';
-    history.forEach((h, idx) => {
-      if (h.correct) return;
-      const li = document.createElement('li');
-      const typeText = h.kind === 'circ' ? 'Circumference' : 'Area';
-      const givenLabel = h.givenType === 'r' ? 'radius' : 'diameter';
-      const units = h.kind === 'circ' ? 'cm' : 'cm²';
-      const userText = (h.userAnswer == null ? 'no answer' : h.userAnswer);
-      li.textContent =
-        (idx + 1) + '. ' + typeText +
-        ' question with ' + givenLabel + ' = ' + h.givenValue + ' cm. ' +
-        'You answered ' + userText +
-        '. Correct rounded answer: ' + h.correctRounded + ' ' + units +
-        (h.timeout ? ' [Timed out]' : '');
-      els.incorrectList.appendChild(li);
-    });
-  }
-
-  // Input parser – now accepts spaces in large numbers (e.g. "1 256")
-  function parseInputValue(val) {
-    if (val == null) return null;
-    const trimmed = val.toString().trim();
-    if (trimmed === '') return null;
-    // Remove all spaces (thousands separators), allow comma as decimal
-    const noSpaces = trimmed.replace(/\s+/g, '');
-    const normalized = noSpaces.replace(',', '.');
-    const n = Number(normalized);
-    if (!isFinite(n)) return null;
-    return n;
-  }
-
-  // Game flow
-  function loadNewQuestion() {
-    clearTimer();
-    const mode = els.modeSelect.value;
-    state.mode = mode;
-
-    const q = generateQuestion(mode);
-    state.currentQuestion = q;
-    state.awaitingNext = false;
-    state.lastResultCorrect = null;
-
-    drawCircleQuestion(els.gameSvg, q);
-
-    if (q.kind === 'circ') {
-      els.questionText.textContent =
-        'Calculate the circumference of the circle. Use π = 3.14 and round your answer to the nearest whole number.';
-    } else {
-      els.questionText.textContent =
-        'Calculate the area of the circle. Use π = 3.14 and round your answer to the nearest whole number.';
-    }
-
-    if (q.givenType === 'r') {
-      els.givenText.textContent = 'Given: radius r = ' + q.givenValue + ' cm.';
-    } else {
-      els.givenText.textContent = 'Given: diameter d = ' + q.givenValue + ' cm.';
-    }
-
-    els.answerInput.value = '';
-    els.answerInput.disabled = false;
-    els.submitBtn.disabled = false;
-    els.nextBtn.disabled = true;
-    els.showStepsBtn.style.display = 'none';
-
-    setFeedback(null, 'New question',
-      'Use the correct formula, substitute the value, calculate with π = 3.14 and round to the nearest whole number.');
-
-    if (els.timerToggle.checked) {
-      startTimer();
-    } else {
-      state.timerOn = false;
-      updateTimerDisplay();
-    }
-
-    els.answerInput.focus();
-  }
-
-  function gradeQuestion(fromTimeout) {
-    const q = state.currentQuestion;
-    if (!q) return;
-
-    const userVal = fromTimeout ? null : parseInputValue(els.answerInput.value);
-    const correctVal = q.correctRounded;
-    const isCorrect = userVal !== null && Math.round(userVal) === correctVal;
-
-    state.total += 1;
-
-    const historyEntry = {
-      kind: q.kind,
-      givenType: q.givenType,
-      givenValue: q.givenValue,
-      radius: q.radius,
-      rawValue: q.rawValue,
-      correctRounded: correctVal,
-      userAnswer: userVal,
-      correct: isCorrect,
-      timeout: !!fromTimeout
+    const givenValue=givenType==='r'?radius:diameter;
+    q={
+      kind,givenType,givenValue,radius,diameter,
+      rawValue:raw,
+      correctRounded:Math.round(raw),
+      key:givenType+':'+givenValue
     };
-    state.history.push(historyEntry);
+    tries++;
+  }while(trackRecent && state.recentKeys.includes(q.key) && tries<30);
 
-    const units = q.kind === 'circ' ? 'cm' : 'cm²';
+  if(trackRecent){
+    state.recentKeys.push(q.key);
+    if(state.recentKeys.length>8)state.recentKeys.shift();
+  }
+  return q;
+}
 
-    if (isCorrect) {
-      state.correct += 1;
-      state.streak += 1;
-      if (state.streak > state.bestStreak) state.bestStreak = state.streak;
-      let points = 10;
-      if (state.streak > 0 && state.streak % 5 === 0) points += 5;
-      state.score += points;
+function clearSvg(svg){while(svg.firstChild)svg.removeChild(svg.firstChild)}
 
-      let explanation;
-      if (q.kind === 'circ') {
-        if (q.givenType === 'r') {
-          explanation =
-            'Using C = 2 × π × r with π = 3.14:\n' +
-            'C = 2 × 3.14 × ' + q.radius + ' = ' + q.rawValue.toFixed(2) + '.\n' +
-            'Rounded to the nearest whole number: ' + correctVal + ' ' + units + '.';
-        } else {
-          explanation =
-            'Using C = π × d with π = 3.14:\n' +
-            'C = 3.14 × ' + (q.givenValue) + ' = ' + q.rawValue.toFixed(2) + '.\n' +
-            'Rounded to the nearest whole number: ' + correctVal + ' ' + units + '.';
-        }
-      } else {
-        explanation =
-          'First find the radius if needed (r = d ÷ 2 when diameter is given).\n' +
-          'Then use A = π × r² with π = 3.14:\n' +
-          'A = 3.14 × ' + q.radius + '² = ' + q.rawValue.toFixed(2) + '.\n' +
-          'Rounded to the nearest whole number: ' + correctVal + ' ' + units + '.';
-      }
+function svgEl(name,attrs={}){
+  const el=document.createElementNS(SVG_NS,name);
+  for(const [k,v] of Object.entries(attrs))el.setAttribute(k,String(v));
+  return el;
+}
 
-      setFeedback('correct', 'Correct!', explanation);
-      els.showStepsBtn.style.display = 'none';
-      playBeep('correct');
-    } else {
-      state.streak = 0;
-      setFeedback('incorrect',
-        fromTimeout ? "Time's up!" : 'Not quite.',
-        'Check that you used the correct formula, used π = 3.14, and rounded to the nearest whole number. You can show the steps to see the full working.');
-      els.showStepsBtn.style.display = 'inline-block';
-      playBeep('wrong');
+function drawCircle(svg,q){
+  clearSvg(svg);
+  const cx=130,cy=130,rPx=78;
+  const style=getComputedStyle(document.body);
+  const stroke=style.getPropertyValue('--diagram').trim()||'#444';
+  const fill=q.kind==='area'
+    ? (style.getPropertyValue('--area-fill').trim()||'#dff3df')
+    : 'transparent';
+
+  svg.appendChild(svgEl('circle',{
+    cx,cy,r:rPx,fill,stroke,'stroke-width':3
+  }));
+
+  const isRadius=q.givenType==='r';
+  const x1=isRadius?cx:cx-rPx;
+  const x2=cx+rPx;
+  svg.appendChild(svgEl('line',{
+    x1,y1:cy,x2,y2:cy,stroke,'stroke-width':3
+  }));
+
+  const label=svgEl('text',{
+    x:(x1+x2)/2,y:cy-14,'font-size':15,'text-anchor':'middle',fill:stroke
+  });
+  label.textContent=(isRadius?'r':'d')+' = '+q.givenValue+' cm';
+  svg.appendChild(label);
+}
+
+function questionText(q){
+  return q.kind==='circumference'
+    ? 'Calculate the circumference of the circle.'
+    : 'Calculate the area of the circle.';
+}
+
+function parseWholeAnswer(raw){
+  const s=raw.trim().replace(/\s+/g,'');
+  if(!s || !/^[+]?\d+$/.test(s))return null;
+  const n=Number(s);
+  return Number.isSafeInteger(n)?n:null;
+}
+
+function announce(msg){
+  const el=$('#live');el.textContent='';
+  setTimeout(()=>el.textContent=msg,10);
+}
+
+function newQuestion(){
+  state.current=generateQuestion();
+  state.evaluated=false;
+  drawCircle($('#diagram'),state.current);
+  $('#question').textContent=questionText(state.current);
+  $('#given').textContent=
+    'Given: '+(state.current.givenType==='r'?'radius':'diameter')+
+    ' = '+state.current.givenValue+' cm';
+
+  $('#answer').value='';
+  $('#answer').disabled=false;
+  $('#check').disabled=false;
+  $('#next').hidden=true;
+  $('#feedback').textContent='';
+  $('#feedback').className='feedback';
+  $('#showSteps').hidden=true;
+  $('#steps').hidden=true;
+  $('#steps').textContent='';
+  $('#answer').focus();
+}
+
+function stepsText(q){
+  if(q.kind==='circumference'){
+    if(q.givenType==='r'){
+      return `Formula: C = 2 × π × r
+Substitute: C = 2 × 3.14 × ${q.radius}
+Calculate: C = ${q.rawValue.toFixed(2)}
+Round to the nearest whole number: ${q.correctRounded} cm`;
     }
-
-    updateStatsAndSummary();
-    state.awaitingNext = true;
-    state.lastResultCorrect = isCorrect;
-
-    els.answerInput.disabled = true;
-    els.submitBtn.disabled = true;
-    els.nextBtn.disabled = false;
+    return `Formula: C = π × d
+Substitute: C = 3.14 × ${q.diameter}
+Calculate: C = ${q.rawValue.toFixed(2)}
+Round to the nearest whole number: ${q.correctRounded} cm`;
   }
 
-  function showSteps() {
-    const q = state.currentQuestion;
-    if (!q) return;
+  if(q.givenType==='d'){
+    return `First find the radius: r = d ÷ 2 = ${q.diameter} ÷ 2 = ${q.radius} cm
+Formula: A = π × r²
+Substitute: A = 3.14 × ${q.radius}²
+Calculate: A = ${q.rawValue.toFixed(2)}
+Round to the nearest whole number: ${q.correctRounded} cm²`;
+  }
+  return `Formula: A = π × r²
+Substitute: A = 3.14 × ${q.radius}²
+Calculate: A = ${q.rawValue.toFixed(2)}
+Round to the nearest whole number: ${q.correctRounded} cm²`;
+}
 
-    const units = q.kind === 'circ' ? 'cm' : 'cm²';
-    let explanation = '';
+function checkAnswer(){
+  if(state.evaluated)return;
 
-    if (q.kind === 'circ') {
-      explanation += 'We are finding the circumference.\n';
-      if (q.givenType === 'r') {
-        explanation += 'Given radius r = ' + q.radius + ' cm.\n';
-        explanation += 'Use the formula C = 2 × π × r with π = 3.14.\n';
-        explanation += 'C = 2 × 3.14 × ' + q.radius + ' = ' + q.rawValue.toFixed(2) + '.\n';
-      } else {
-        explanation += 'Given diameter d = ' + q.givenValue + ' cm.\n';
-        explanation += 'Use the formula C = π × d with π = 3.14.\n';
-        explanation += 'C = 3.14 × ' + q.givenValue + ' = ' + q.rawValue.toFixed(2) + '.\n';
-      }
-      explanation += 'Round to the nearest whole number: ' + q.correctRounded + ' ' + units + '.';
-    } else {
-      explanation += 'We are finding the area.\n';
-      if (q.givenType === 'd') {
-        explanation += 'Given diameter d = ' + q.givenValue + ' cm.\n';
-        explanation += 'First find the radius: r = d ÷ 2 = ' + q.givenValue + ' ÷ 2 = ' + q.radius + ' cm.\n';
-      } else {
-        explanation += 'Given radius r = ' + q.radius + ' cm.\n';
-      }
-      explanation += 'Use the formula A = π × r² with π = 3.14.\n';
-      explanation += 'A = 3.14 × ' + q.radius + '² = ' + q.rawValue.toFixed(2) + '.\n';
-      explanation += 'Round to the nearest whole number: ' + q.correctRounded + ' ' + units + '.';
-    }
-
-    els.feedbackBody.textContent = explanation;
+  const value=parseWholeAnswer($('#answer').value);
+  if(value===null){
+    $('#feedback').textContent='Enter a whole-number answer first.';
+    $('#feedback').className='feedback incorrect';
+    announce('Enter a whole-number answer first.');
+    return;
   }
 
-  // Worksheet mode
-  function createWorksheetSvg(question) {
-    const svg = document.createElementNS(svgNS, 'svg');
-    svg.setAttribute('viewBox', '0 0 260 260');
+  state.evaluated=true;
+  $('#answer').disabled=true;
+  $('#check').disabled=true;
+  $('#next').hidden=false;
+
+  if(value===state.current.correctRounded){
+    state.correct++;
+    $('#feedback').textContent='Correct!';
+    $('#feedback').className='feedback correct';
+    announce('Correct');
+  }else{
+    state.incorrect++;
+    const units=state.current.kind==='circumference'?'cm':'cm²';
+    $('#feedback').textContent=
+      `Incorrect. Correct answer: ${state.current.correctRounded} ${units}`;
+    $('#feedback').className='feedback incorrect';
+    $('#showSteps').hidden=false;
+    announce('Incorrect');
+  }
+
+  $('#correctCount').textContent=state.correct;
+  $('#incorrectCount').textContent=state.incorrect;
+}
+
+$('#showSteps').addEventListener('click',()=>{
+  $('#steps').textContent=stepsText(state.current);
+  $('#steps').hidden=false;
+  $('#showSteps').hidden=true;
+});
+$('#check').addEventListener('click',checkAnswer);
+$('#next').addEventListener('click',newQuestion);
+$('#answer').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    if(state.evaluated)newQuestion();
+    else checkAnswer();
+  }else if(e.key==='Escape'&&!state.evaluated){
+    $('#answer').value='';
+  }
+});
+
+$('#types').addEventListener('click',e=>{
+  const btn=e.target.closest('button[data-type]');if(!btn)return;
+  state.type=btn.dataset.type;
+  state.recentKeys=[];
+  $$('#types button').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));
+  if(state.mode==='practice')newQuestion();
+});
+
+function setMode(mode){
+  state.mode=mode;
+  const practice=mode==='practice';
+  $('#practice').style.display=practice?'grid':'none';
+  $('#worksheet').style.display=practice?'none':'block';
+  $('#practiceBtn').setAttribute('aria-pressed',String(practice));
+  $('#worksheetBtn').setAttribute('aria-pressed',String(!practice));
+  if(practice){
+    newQuestion();
+  }else{
+    $('#wsType').value=state.type;
+    if(!$('#wsList').children.length)renderWorksheet();
+  }
+}
+$('#practiceBtn').addEventListener('click',()=>setMode('practice'));
+$('#worksheetBtn').addEventListener('click',()=>setMode('worksheet'));
+
+$('#contrastBtn').addEventListener('click',()=>{
+  const on=document.body.classList.toggle('high-contrast');
+  $('#contrastBtn').setAttribute('aria-pressed',String(on));
+  if(state.mode==='practice'&&state.current)drawCircle($('#diagram'),state.current);
+  $$('#wsList .ws-svg').forEach((svg,i)=>{
+    const q=svg._question;
+    if(q)drawCircle(svg,q);
+  });
+});
+
+function renderWorksheet(){
+  const list=$('#wsList');
+  list.innerHTML='';
+  const type=$('#wsType').value;
+  const count=Number($('#wsCount').value)||10;
+  const recent=[];
+
+  for(let i=1;i<=count;i++){
+    let q,tries=0;
+    do{
+      q=generateQuestion(type,false);
+      tries++;
+    }while(recent.includes(q.key)&&tries<30);
+    recent.push(q.key);
+    if(recent.length>8)recent.shift();
+
+    const item=document.createElement('div');
+    item.className='ws-item';
+
+    const row=document.createElement('div');
+    row.className='ws-row';
+
+    const svg=svgEl('svg',{viewBox:'0 0 260 260'});
     svg.classList.add('ws-svg');
-    drawCircleQuestion(svg, question);
-    return svg;
-  }
+    svg._question=q;
+    drawCircle(svg,q);
 
-  function createWorksheetQuestionElement(index, question) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'ws-question';
+    const text=document.createElement('div');
+    text.className='ws-text';
+    const units=q.kind==='circumference'?'cm':'cm²';
+    text.innerHTML=`
+      <strong>${i}. ${questionText(q)}</strong>
+      <div style="margin-top:6px">Use π = 3.14 and round to the nearest whole number.</div>
+      <div style="margin-top:12px">Answer: ____________________</div>
+      <button class="ws-reveal" aria-expanded="false">Reveal</button>
+      <div class="ws-answer">Answer: ${q.correctRounded} ${units}</div>`;
 
-    const header = document.createElement('div');
-    header.textContent = index + '.';
-    wrapper.appendChild(header);
-
-    const row = document.createElement('div');
-    row.className = 'ws-diagram-row';
-
-    const svg = createWorksheetSvg(question);
-    row.appendChild(svg);
-
-    const textCol = document.createElement('div');
-    const text = document.createElement('div');
-    text.className = 'ws-text';
-
-    if (question.kind === 'circ') {
-      text.textContent =
-        'Calculate the circumference of the circle. Use π = 3.14 and round your answer to the nearest whole number.';
-    } else {
-      text.textContent =
-        'Calculate the area of the circle. Use π = 3.14 and round your answer to the nearest whole number.';
-    }
-
-    textCol.appendChild(text);
-
-    const blank = document.createElement('div');
-    blank.className = 'ws-blank-line';
-    blank.textContent = 'Answer: __________________________';
-    textCol.appendChild(blank);
-
-    const ans = document.createElement('div');
-    ans.className = 'ws-answer';
-
-    const units = question.kind === 'circ' ? 'cm' : 'cm²';
-    if (question.kind === 'circ') {
-      ans.textContent =
-        'Answer: The circumference is ' + question.correctRounded + ' ' + units + '.';
-    } else {
-      ans.textContent =
-        'Answer: The area is ' + question.correctRounded + ' ' + units + '.';
-    }
-
-    textCol.appendChild(ans);
-    row.appendChild(textCol);
-    wrapper.appendChild(row);
-
-    return { wrapper, answerEl: ans };
-  }
-
-  function generateWorksheet() {
-    els.wsContainer.innerHTML = '';
-    const count = parseInt(els.wsCount.value, 10) || 10;
-    const mode = els.wsModeSelect.value;
-    for (let i = 1; i <= count; i++) {
-      const q = generateQuestion(mode);
-      const { wrapper } = createWorksheetQuestionElement(i, q);
-      els.wsContainer.appendChild(wrapper);
-    }
-  }
-
-  function setWorksheetAnswersVisible(visible) {
-    const answers = els.wsContainer.querySelectorAll('.ws-answer');
-    answers.forEach(a => {
-      if (visible) a.classList.add('visible');
-      else a.classList.remove('visible');
+    const reveal=text.querySelector('.ws-reveal');
+    const answer=text.querySelector('.ws-answer');
+    reveal.addEventListener('click',()=>{
+      const showing=answer.style.display==='block';
+      answer.style.display=showing?'none':'block';
+      reveal.textContent=showing?'Reveal':'Hide';
+      reveal.setAttribute('aria-expanded',String(!showing));
     });
+
+    row.append(svg,text);
+    item.append(row);
+    list.append(item);
+  }
+}
+
+$('#generateWs').addEventListener('click',renderWorksheet);
+$('#revealAll').addEventListener('click',()=>{
+  $$('#wsList .ws-answer').forEach(a=>a.style.display='block');
+  $$('#wsList .ws-reveal').forEach(b=>{
+    b.textContent='Hide';b.setAttribute('aria-expanded','true');
+  });
+});
+$('#hideAll').addEventListener('click',()=>{
+  $$('#wsList .ws-answer').forEach(a=>a.style.display='none');
+  $$('#wsList .ws-reveal').forEach(b=>{
+    b.textContent='Reveal';b.setAttribute('aria-expanded','false');
+  });
+});
+$('#printWs').addEventListener('click',()=>window.print());
+
+function runDevTests(){
+  const failures=[];
+  const assert=(name,cond)=>{if(!cond)failures.push(name)};
+
+  for(const type of ['circumference','area','mixed']){
+    for(let i=0;i<50000;i++){
+      const q=generateQuestion(type,false);
+      assert('radius range',q.radius>=2&&q.radius<=20);
+      assert('diameter even range',q.diameter>=4&&q.diameter<=40&&q.diameter%2===0);
+      if(type!=='mixed')assert('type preserved',q.kind===type);
+
+      const expected=q.kind==='circumference'
+        ? Math.round(q.givenType==='r'?2*3.14*q.radius:3.14*q.diameter)
+        : Math.round(3.14*q.radius*q.radius);
+      assert('answer correct',q.correctRounded===expected);
+    }
   }
 
-  // Tabs
-  els.tabButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tab = btn.getAttribute('data-tab');
-      els.tabButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      if (tab === 'game') {
-        els.gameTab.style.display = '';
-        els.worksheetTab.style.display = 'none';
-      } else {
-        els.gameTab.style.display = 'none';
-        els.worksheetTab.style.display = '';
-      }
-    });
-  });
+  assert('blank rejected',parseWholeAnswer('')===null);
+  assert('decimal final rejected',parseWholeAnswer('62.4')===null);
+  assert('whole accepted',parseWholeAnswer('62')===62);
+  console.log(failures.length?'DEV TESTS: FAIL':'DEV TESTS: PASS',failures);
+}
 
-  // Events
-  els.submitBtn.addEventListener('click', () => {
-    if (!state.currentQuestion || state.awaitingNext) return;
-    clearTimer();
-    gradeQuestion(false);
-  });
-
-  els.nextBtn.addEventListener('click', () => {
-    loadNewQuestion();
-  });
-
-  els.clearBtn.addEventListener('click', () => {
-    if (state.awaitingNext) return;
-    els.answerInput.value = '';
-    els.answerInput.focus();
-  });
-
-  els.showStepsBtn.addEventListener('click', showSteps);
-
-  els.timerToggle.addEventListener('change', () => {
-    if (!els.timerToggle.checked) {
-      clearTimer();
-      state.timerOn = false;
-      updateTimerDisplay();
-    } else {
-      updateTimerDisplay();
-    }
-  });
-
-  els.timerDuration.addEventListener('change', () => {
-    if (els.timerToggle.checked && !state.awaitingNext) {
-      startTimer();
-    }
-  });
-
-  els.contrastToggle.addEventListener('change', () => {
-    if (els.contrastToggle.checked) {
-      document.body.classList.add('high-contrast');
-    } else {
-      document.body.classList.remove('high-contrast');
-    }
-  });
-
-  els.modeSelect.addEventListener('change', () => {
-    // reset recentKeys when changing mode to keep variety fresh
-    state.recentKeys = [];
-    loadNewQuestion();
-  });
-
-  els.wsGenerateBtn.addEventListener('click', () => {
-    generateWorksheet();
-    setWorksheetAnswersVisible(false);
-  });
-
-  els.wsShowBtn.addEventListener('click', () => {
-    setWorksheetAnswersVisible(true);
-  });
-
-  els.wsHideBtn.addEventListener('click', () => {
-    setWorksheetAnswersVisible(false);
-  });
-
-  els.wsPrintBtn.addEventListener('click', () => {
-    window.print();
-  });
-
-  // Keyboard – now ignores auto-repeat on Enter to prevent instant auto-next
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      if (e.repeat) return; // prevent key repeat from auto-advancing
-      e.preventDefault();
-      if (!state.awaitingNext) {
-        els.submitBtn.click();
-      } else {
-        els.nextBtn.click();
-      }
-    } else if (e.key === 'Escape') {
-      if (!state.awaitingNext) {
-        els.clearBtn.click();
-      }
-    }
-  });
-
-  // Dev tests
-  function runDevTests() {
-    const results = [];
-    function add(name, pass, note) {
-      results.push({ name, pass, note: note || '' });
-    }
-
-    let circCount = 0, areaCount = 0;
-    let rCount = 0, dCount = 0;
-    let rRangeOK = true, dRangeOK = true;
-
-    for (let i = 0; i < 120; i++) {
-      const q = generateQuestion('mixed');
-      if (q.kind === 'circ') circCount++; else areaCount++;
-      if (q.givenType === 'r') {
-        rCount++;
-        if (q.radius < 2 || q.radius > 20) rRangeOK = false;
-      } else {
-        dCount++;
-        if (q.givenValue < 4 || q.givenValue > 40 || q.givenValue % 2 !== 0) dRangeOK = false;
-      }
-    }
-
-    add('Mixed mode generates both circumference and area', circCount > 0 && areaCount > 0,
-      'Circ: ' + circCount + ', Area: ' + areaCount);
-    add('Radius range 2–20', rRangeOK, '');
-    add('Diameter range 4–40 even', dRangeOK, '');
-
-    let roundingOK = true;
-    for (let i = 0; i < 50; i++) {
-      const q = generateQuestion('circumference');
-      const manual = Math.round(q.rawValue);
-      if (manual !== q.correctRounded) roundingOK = false;
-    }
-    add('Rounding uses nearest whole number', roundingOK, '');
-
-    els.wsCount.value = '7';
-    generateWorksheet();
-    const wsCount = els.wsContainer.querySelectorAll('.ws-question').length;
-    add('Worksheet generates 7 questions', wsCount === 7, 'Got ' + wsCount);
-
-    const anyVisible = els.wsContainer.querySelector('.ws-answer.visible');
-    add('Worksheet answers hidden by default', !anyVisible, '');
-
-    els.devTestsList.innerHTML = '';
-    results.forEach(r => {
-      const li = document.createElement('li');
-      li.textContent =
-        (r.pass ? '✔ ' : '✖ ') + r.name + (r.note ? ' (' + r.note + ')' : '');
-      els.devTestsList.appendChild(li);
-    });
-  }
-
-  const devMode = window.location.search.includes('dev=1');
-  if (devMode) {
-    els.devTests.style.display = 'block';
-    runDevTests();
-  }
-
-  // Initial
-  els.timerToggle.checked = false;
-  updateTimerDisplay();
-  loadNewQuestion();
-})();
+newQuestion();
+if(new URLSearchParams(location.search).get('dev')==='1')runDevTests();
 </script>
 </body>
 </html>
